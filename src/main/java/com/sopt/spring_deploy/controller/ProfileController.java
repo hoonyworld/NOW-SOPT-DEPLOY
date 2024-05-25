@@ -11,12 +11,12 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class ProfileController {
 
-    private final Environment environment;
+    private final Environment env;
     private static final String NULL = "";
 
     @GetMapping("/profile")
     public String getProfile() {
-        return Arrays.stream(environment.getActiveProfiles())
+        return Arrays.stream(env.getActiveProfiles())
                 .findFirst()
                 .orElse(NULL);
     }
