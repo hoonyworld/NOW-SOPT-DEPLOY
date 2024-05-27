@@ -1,40 +1,43 @@
-name: CI
-
-on:
-  pull_request:
-    branches: [ "main" ]
-
-jobs:
-  build:
-    runs-on: ubuntu-22.04 
-
-    steps: 
-    - name: checkout
-      uses: actions/checkout@v3
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'corretto'
-        java-version: '17'
-
-    - name: create application.yml
-      run: |
-        ## move application.yml
-        cd ./src/main/resources
-
-         # application.yml 파일 생성
-        touch ./application.yml
-
-        # GitHub-Actions 에서 설정한 값을 application.yml 파일에 쓰기
-        echo "${{ secrets.CI_APPLICATION }}" > ./application.yml
-        
-        # application.yml 파일 확인
-        cat ./application.yml
-      shell: bash
-      
-    - name: build
-      run: |
-          chmod +x gradlew
-          ./gradlew build -x test
-      shell: bash
+spring:
+  profiles:
+    active: set1
+---
+spring:
+  config:
+    activate:
+      on-profile: set1
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://sopt-deploy-database.c5sk66kiular.ap-northeast-2.rds.amazonaws.com:5432/postgres
+    username: deploy
+    password: deploysopt
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+server:
+  port: 8081
+---
+spring:
+  config:
+    activate:
+      on-profile: set2
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://sopt-deploy-database.c5sk66kiular.ap-northeast-2.rds.amazonaws.com:5432/postgres
+    username: deploy
+    password: deploysopt
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+server:
+  port: 8082
