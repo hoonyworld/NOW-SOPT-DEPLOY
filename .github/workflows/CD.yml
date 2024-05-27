@@ -32,8 +32,6 @@ jobs:
         ## move application-set1.yml
         cd ./src/main/resources
 
-        touch ./application-set1.yml
-
         echo "${{ secrets.CD_APPLICATION }}" >> ./application-set1.yml
         
         cat ./application-set1.yml
