@@ -29,14 +29,14 @@ jobs:
     
     - name: make application.yml
       run: |
-        ## move application.yml
+        ## move application-set1.yml
         cd ./src/main/resources
 
-        touch ./application.yml
+        touch ./application-se1.yml
 
-        echo "${{ secrets.CD_APPLICATION }}" >> ./application.yml
+        echo "${{ secrets.CD_APPLICATION }}" >> ./application-se1.yml
         
-        cat ./application.yml
+        cat ./application-se1.yml
       shell: bash
         
     - name: Grant execute permission for gradlew
