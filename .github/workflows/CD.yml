@@ -29,7 +29,8 @@ jobs:
     
     - name: make application.yml
       run: |
-        ## move application.yml
+        ## create application.yml
+        mkdir ./src/main/resources
         cd ./src/main/resources
 
         echo "${{ secrets.CD_APPLICATION }}" >> ./application.yml
