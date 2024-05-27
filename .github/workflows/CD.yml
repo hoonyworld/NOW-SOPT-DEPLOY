@@ -1,18 +1,23 @@
+# 워크플로우의 이름 지정
 name: CD
 
+# 해당 workflow가 언제 실행될 것인지에 대한 트리거를 지정
 on:
   push:
-    branches: [ main ]
+    branches: [ main ] # main branch로 push 될 때 실행됩니다.
 
 env:
-  S3_BUCKET_NAME: nowsopt-sopkathon-bucket
+  S3_BUCKET_NAME: now-sopt-bucket
 
 jobs:
-  deploy:
+  build:
     name: Code deployment
+
+    # 실행 환경
     runs-on: ubuntu-22.04
 
     steps:
+    
     - name: checkout
       uses: actions/checkout@v3
     
@@ -24,23 +29,20 @@ jobs:
     
     - name: make application.yml
       run: |
+        ## create application.yml
         cd ./src/main/resources
-        echo "spring.datasource.driver-class-name=org.postgresql.Driver" > ./application-set1.yml
-        echo "spring.datasource.url=${{ secrets.DB_URL }}" >> ./application-set1.yml
-        echo "spring.datasource.username=${{ secrets.DB_USERNAME }}" >> ./application-set1.yml
-        echo "spring.datasource.password=${{ secrets.DB_PASSWORD }}" >> ./application-set1.yml
-        echo "spring.jpa.show-sql=true" >> ./application-set1.yml
-        echo "spring.jpa.hibernate.ddl-auto=update" >> ./application-set1.yml
-        echo "spring.jpa.properties.hibernate.format_sql=true" >> ./application-set1.yml
-        echo "spring.jpa.properties.hibernate.show_sql=true" >> ./application-set1.yml
-        echo "server.port=8081" >> ./application-set1.yml
-        cat ./application-set1.yml
+
+        touch ./application.yml
+
+        echo "${{ secrets.CD_APPLICATION }}" >> ./application.yml
+        
+        cat ./application.yml
       shell: bash
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Build with Gradle
+    - name: Build with Gradle # 실제 application build(-x 옵션을 통해 test는 제외)
       run: ./gradlew build -x test
       
     - name: Make Directory
@@ -73,10 +75,10 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      run: |
-        aws deploy create-deployment \
-        --application-name now-sopt-deploy \
-        --deployment-group-name now-sopt-deploy \
-        --file-exists-behavior OVERWRITE \
-        --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=now-sopt.zip \
+      run:
+        aws deploy create-deployment 
+        --application-name now-sopt-deploy
+        --deployment-group-name now-sopt-deploy
+        --file-exists-behavior OVERWRITE 
+        --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=now-sopt.zip
         --region ap-northeast-2
